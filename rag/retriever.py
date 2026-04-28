@@ -101,7 +101,6 @@ class Retriever:
     ) -> List[Candidate]:
         """
         Return up to `top_k` candidates that pass all hard filters.
-
         `min_similarity` is a sanity floor: queries that match nothing in the
         catalog (e.g. completely off-domain) won't sneak in low-relevance
         items just because the budget filter passed.
