@@ -8,7 +8,7 @@ next if we had another five hours.
 
 ## Why this problem
 
-Mumzworld's brief listed ~12 example problems. We picked **Gift Finder** because:
+Mumzworld's brief listed ~12 example problems. We picked **Recommendations using RAG** because:
 
 1. **It's a real funnel.** Gift-finding is a high-intent purchase with a
    bad default UX (search bar + filter chips). Even a modest improvement
@@ -46,7 +46,7 @@ We considered and rejected:
 | --- | --- | --- | --- |
 | Embeddings | `paraphrase-multilingual-MiniLM-L12-v2` | EN + AR out of the box. ~120 MB, CPU-only, <500 ms encode. | `bge-m3` (better but 2.3 GB), OpenAI `text-embedding-3-small` (paid, network round-trip). |
 | LLM (primary) | `google/gemini-2.0-flash-exp:free` via OpenRouter | Free tier, fast (~1.5 s), reliable JSON mode, strong Arabic. | `meta-llama/llama-3.3-70b-instruct:free` (slower, weaker on Arabic), `qwen/qwen-2.5-72b-instruct:free` (great Arabic, slowest). |
-| LLM (fallback) | `gemini-2.0-flash` (Google AI Studio direct) | Cuts out the OpenRouter routing layer when its free tier rate-limits. | A pure local model via Ollama (rejected — adds setup pain to a 5-min-clone deliverable). |
+| LLM (fallback) | `gemini-2.5-flash` (Google AI Studio direct) | Cuts out the OpenRouter routing layer when its free tier rate-limits. | A pure local model via Ollama (rejected — adds setup pain to a 5-min-clone deliverable). |
 | Schema | Pydantic v2 | Single source of truth; declarative validators; trivially serializable; Streamlit-friendly. | `jsonschema` (more verbose), `dataclasses` (no validation), hand-rolled (waste of time). |
 | Vector store | NumPy + cosine similarity | 20 items. Anything more is masochism. | FAISS (overkill), Chroma (added dep), pgvector (overkill, infra). |
 | UI | Streamlit | Brief says backend is the focus. Streamlit gets us a clean two-column EN/AR view in 80 lines. | FastAPI + a JS frontend (rejected — the brief is explicit). |

@@ -1,11 +1,18 @@
-#  Recommendations using RAG (with Reasoning)
+> **Mumzworld AI Engineering Intern — Track A take-home.**
+
+---
+
+## 🎥 Demo
+
+**[▶ Watch the 3-minute walkthrough on Loom](https://www.loom.com/share/6124a9d0666148a7b26dbd66f5b48adf)**
+
+Shows 3 inputs end-to-end including a refusal case (out-of-scope query → structured fallback).
 
 A multilingual, RAG-grounded gift-recommendation prototype for Mumzworld.
 Natural-language input in English or Arabic →  3–5 grounded, age-appropriate,
 budget-respecting product picks with reasoning and a confidence score, in
 both English **and** native Arabic, validated against a strict JSON schema.
 
-> **Mumzworld AI Engineering Intern — Track A take-home.**
 
 ---
 
