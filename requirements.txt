@@ -1,0 +1,12 @@
+# --- Core ---
+pydantic>=2.6,<3
+requests>=2.31,<3
+python-dotenv>=1.0,<2
+
+# --- RAG / embeddings ---
+# sentence-transformers pulls in torch (CPU build is fine).
+sentence-transformers>=2.7,<3
+numpy>=1.26,<3
+
+# --- UI ---
+streamlit>=1.32,<2
