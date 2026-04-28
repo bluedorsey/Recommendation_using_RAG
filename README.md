@@ -1,4 +1,4 @@
-# 🎁 Gift Finder for Moms (with Reasoning)
+#  Recommendations using RAG (with Reasoning)
 
 A multilingual, RAG-grounded gift-recommendation prototype for Mumzworld.
 Natural-language input in English or Arabic →  3–5 grounded, age-appropriate,
@@ -155,7 +155,6 @@ gift-finder/
 │   ├── schema.py           # Pydantic GiftFinderResponse (strict)
 │   ├── intent.py           # deterministic intent parser (EN + AR)
 │   └── language.py         # lightweight script-based lang detector
-├── app.py                  # Streamlit UI
 ├── cli.py                  # CLI alternative
 ├── evals.py                # 14 test cases + 5-dim scoring
 ├── requirements.txt
@@ -221,27 +220,19 @@ These belong to a separate file: see [`TRADEOFFS.md`](./TRADEOFFS.md). Short ver
 
 ---
 
-## 8. Tooling and AI-assistance disclosure
+## 8. Claude & AI usage
 
-Per the brief's tooling-transparency requirement:
+- **Claude as coding assistant** — used throughout implementation for boilerplate, schema design, and Arabic prompt drafting; all architectural decisions (RAG-before-LLM, two separate generation calls, post-LLM grounding check) were made and defended manually.
 
-- **LLM providers (runtime):** OpenRouter (`google/gemini-2.0-flash-exp:free`,
-  primary) with Google AI Studio Gemini as a fallback path. Free tier on
-  both — no paid keys needed.
-- **Embeddings (runtime):** `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`,
-  loaded locally, CPU-only.
-- **Code-authoring tools (build time):** Claude (Anthropic) for the bulk of
-  the implementation and the Arabic prompt drafting; manual review and
-  iteration on the intent parser, schema invariants, and eval rubric.
-  Tooling choices, the layered architecture, the hallucination-drop check,
-  and the EN-vs-AR prompt separation were design calls I made and defended;
-  the assistant accelerated the typing, not the thinking.
-- **Prompts that materially shaped output:** the system prompts in
-  `llm/prompts.py` are the ones that matter — they're committed verbatim
-  and the rules in them (especially "you MAY ONLY recommend products from
-  the CANDIDATES list") are the single biggest reason the grounding rate
-  is what it is. Iterated 4–5 times against the eval suite to tune
-  fallback wording and confidence-calibration nudges.
+- **Sub-agents for testing & evaluation** — a `failure_agent` sub-agent was prompted with adversarial queries (out-of-scope, budget-too-tight, prompt injection, Arabic input) to stress-test fallback paths before the eval suite was formalised; a `json_agent` was used to verify schema compliance on raw LLM outputs.
+
+- **Mock data creation** — `data/products.json` (20-item catalog, dual INR/AED pricing, age ranges, tags) was generated with Claude given a seed set of real Mumzworld product categories; fields were hand-verified for price plausibility and age-range correctness.
+
+- **Tool selection** — Claude helped evaluate embedding model options (`paraphrase-multilingual-MiniLM-L12-v2` chosen for multilingual EN+AR support at ~120 MB CPU-only) and surfaced the `responseSchema` + `thinkingBudget: 0` fix for Gemini 2.5-flash's thinking-token truncation issue.
+
+- **Arabic reasoning** — the Arabic system prompt (`SYSTEM_AR` in `llm/prompts.py`) was drafted with Claude to produce *native* Arabic copy rather than translated English; two separate LLM calls (one per language) were chosen specifically because a single bilingual call yields Arabic that reads like a literal translation.
+
+- **Latency improvements** — Claude identified that `hash()` randomisation was creating a new embeddings `.pkl` on every process restart (confirmed by 7 stale cache files); switching to `hashlib.md5` cut cold-start from ~30 s to <1 s. Disabling thinking (`thinkingBudget: 0`) on Gemini 2.5-flash removed the reasoning overhead that was truncating JSON output at 116 chars.
 
 ---
 
@@ -265,25 +256,7 @@ hard checks for the 14 documented cases.
 
 ---
 
-## 10. What's next (if I had another 5 hours)
+## ⏱ Development Time
 
-- **Real catalog ingest.** Swap `data/products.json` for a CSV/JSONL feed
-  with the same fields. The retriever and prompts wouldn't change.
-- **Soft constraints in the LLM, hard constraints in code, *learned*
-  ranker on top.** A small LightGBM ranker over (similarity, recipient
-  match, age fit, price-headroom) would beat the hand-tuned soft bonus.
-- **Streaming UI.** Streamlit's `st.write_stream` against the OpenRouter
-  streaming endpoint would cut perceived latency by ~60 %.
-- **LLM-as-judge for qualitative eval.** The current eval is deterministic
-  on hard correctness; relevance and reasoning quality are still
-  eyeballed. A second-pass judge model with a fixed rubric would let me
-  trend quality across model swaps.
-- **Cross-sell + bundles.** The retriever already returns 8 candidates;
-  asking the LLM for two or three "if you have a bit more, also consider"
-  picks would unlock real revenue.
-
----
-
-## License
-
-Mock data and code are MIT-licensed for the purposes of this assignment.
+The core system was designed and implemented in approximately 4 hours,
+with additional time spent refining evaluation, testing, and documentation.
